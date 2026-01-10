@@ -1,0 +1,79 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "./generated/"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum State {
+  TODO
+  DOING
+  DONE
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+model User {
+  id           String @id @default(uuid())
+  fullName     String
+  email        String @unique
+  passwordHash String
+
+  createdTasks  Task[]         @relation("TaskCreator")
+  ownedTeams    Team[]         @relation("TeamOwner")
+  memberships   TeamMember[]
+  notifications Notification[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Task {
+  id        String  @id @default(uuid())
+  title     String
+  state     State
+  content   String?
+  creator   User    @relation("TaskCreator", fields: [creatorId], references: [id])
+  creatorId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Team {
+  id          String       @id @default(uuid())
+  name        String
+  owner       User         @relation("TeamOwner", fields: [ownerId], references: [id])
+  ownerId     String
+  teamMembers TeamMember[]
+
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  member   User   @relation(fields: [memberId], references: [id])
+  memberId String
+  team     Team   @relation(fields: [teamId], references: [id])
+  teamId   String
+  role     Role
+
+  addedAt DateTime @default(now())
+
+  @@id([memberId, teamId])
+}
+
+model Notification {
+  id          String @id @default(uuid())
+  recipient   User   @relation(fields: [recipientId], references: [id])
+  recipientId String
+  message     String
+
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+}
