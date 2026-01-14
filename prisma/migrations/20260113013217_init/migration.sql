@@ -2,7 +2,10 @@
 CREATE TYPE "State" AS ENUM ('TODO', 'DOING', 'DONE');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('OWNER', 'MEMBER');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+
+-- CreateEnum
+CREATE TYPE "TeamRole" AS ENUM ('OWNER', 'MEMBER');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -10,8 +13,9 @@ CREATE TABLE "User" (
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -24,7 +28,7 @@ CREATE TABLE "Task" (
     "content" TEXT,
     "creatorId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
@@ -43,7 +47,7 @@ CREATE TABLE "Team" (
 CREATE TABLE "TeamMember" (
     "memberId" TEXT NOT NULL,
     "teamId" TEXT NOT NULL,
-    "role" "Role" NOT NULL,
+    "role" "TeamRole" NOT NULL,
     "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TeamMember_pkey" PRIMARY KEY ("memberId","teamId")
@@ -55,7 +59,7 @@ CREATE TABLE "Notification" (
     "recipientId" TEXT NOT NULL,
     "message" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "readAt" TIMESTAMP(3) NOT NULL,
+    "readAt" TIMESTAMP(3),
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
