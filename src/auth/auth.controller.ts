@@ -1,20 +1,23 @@
 import { Body, Controller, Post, Req, UseGuards, Get } from '@nestjs/common';
 
-import { SigninDto } from './dto/signin.dto';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from 'src/users/decorators/user.decorator';
+import { Public } from './decorators/public.decorator';
 
 interface AuthenticatedRequest extends Request {
   user: UserEntity;
 }
 
 @Controller('auth')
+@UseGuards(JwtAuthGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('signin')
   @UseGuards(LocalAuthGuard)
   signin(@Req() req: AuthenticatedRequest) {
@@ -27,8 +30,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
-  getMe(@Req() req: AuthenticatedRequest) {
-    return req.user;
+  getMe(@CurrentUser() user: UserEntity) {
+    return user;
   }
 }
