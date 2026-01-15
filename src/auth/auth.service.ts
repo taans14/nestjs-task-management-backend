@@ -32,7 +32,7 @@ export class AuthService {
     const user = await this.usersService.create({
       fullName: dto.fullName,
       email: dto.email,
-      passwordHash,
+      password: passwordHash,
     });
 
     return new UserEntity(user);

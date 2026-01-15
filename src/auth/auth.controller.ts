@@ -17,14 +17,15 @@ interface AuthenticatedRequest extends Request {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
   @Post('signin')
   @UseGuards(LocalAuthGuard)
+  @Public()
   signin(@Req() req: AuthenticatedRequest) {
     return this.authService.signin(req.user);
   }
 
   @Post('signup')
+  @Public()
   async signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }

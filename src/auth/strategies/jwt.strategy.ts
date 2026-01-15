@@ -5,6 +5,11 @@ import { UsersService } from 'src/users/users.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
 
+export interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
@@ -21,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload) {
+  async validate(payload: JwtPayload): Promise<UserEntity> {
     if (!payload?.sub) {
       throw new UnauthorizedException('Invalid token payload');
     }
