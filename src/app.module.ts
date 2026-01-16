@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TeamsModule } from './teams/teams.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TeamsModule } from './teams/teams.module';
     UsersModule,
     AuthModule,
     TeamsModule,
+    TasksModule,
   ],
 })
 export class AppModule {}

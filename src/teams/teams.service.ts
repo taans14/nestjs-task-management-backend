@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { TeamRole } from 'prisma/generated/enums';
+import { AddTeamMemberDto } from './dto/add-team-member.dto';
 
 @Injectable()
 export class TeamsService {
@@ -22,6 +23,8 @@ export class TeamsService {
           role: TeamRole.OWNER,
         },
       });
+
+      return team;
     });
   }
 
@@ -52,5 +55,26 @@ export class TeamsService {
     });
 
     return teams;
+  }
+
+  async getTeamRole(memberId: string, teamId: string) {
+    const user = await this.prisma.teamMember.findFirst({
+      where: {
+        memberId,
+        teamId,
+      },
+    });
+
+    return user;
+  }
+
+  async addMember(teamId: string, dto: AddTeamMemberDto) {
+    return await this.prisma.teamMember.create({
+      data: {
+        teamId,
+        memberId: dto.memberId,
+        role: dto.role,
+      },
+    });
   }
 }

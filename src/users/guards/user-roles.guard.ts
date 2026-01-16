@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 
 import { USER_ROLES_KEY } from '../decorators/user-roles.decorator';
 import { Request } from 'express';
-import { Role, User } from 'prisma/generated/client';
+import { UserRole, User } from 'prisma/generated/client';
 
 export interface AuthRequest extends Request {
   user: User;
@@ -15,10 +15,10 @@ export class UserRolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const userRoles = this.reflector.getAllAndOverride<Role[]>(USER_ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const userRoles = this.reflector.getAllAndOverride<UserRole[]>(
+      USER_ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!userRoles) return false;
 
@@ -27,6 +27,6 @@ export class UserRolesGuard implements CanActivate {
 
     if (!user) return false;
 
-    return userRoles.includes(user.role as Role);
+    return userRoles.includes(user.role as UserRole);
   }
 }

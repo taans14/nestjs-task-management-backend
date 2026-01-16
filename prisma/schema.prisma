@@ -14,7 +14,7 @@ enum State {
   DONE
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
 }
@@ -25,11 +25,11 @@ enum TeamRole {
 }
 
 model User {
-  id           String @id @default(uuid())
+  id           String   @id @default(uuid())
   fullName     String
-  email        String @unique
+  email        String   @unique
   passwordHash String
-  role         Role   @default(USER)
+  role         UserRole @default(USER)
 
   createdTasks  Task[]         @relation("TaskCreator")
   ownedTeams    Team[]         @relation("TeamOwner")
@@ -38,15 +38,20 @@ model User {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+
+  @@index([email])
 }
 
 model Task {
   id        String  @id @default(uuid())
   title     String
-  state     State
+  state     State   @default(TODO)
   content   String?
   creator   User    @relation("TaskCreator", fields: [creatorId], references: [id])
   creatorId String
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -58,6 +63,7 @@ model Team {
   owner       User         @relation("TeamOwner", fields: [ownerId], references: [id])
   ownerId     String
   teamMembers TeamMember[]
+  tasks       Task[]
 
   createdAt DateTime @default(now())
 }

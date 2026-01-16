@@ -1,6 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from 'prisma/generated/client';
+import { UserRole } from 'prisma/generated/client';
 
 export class UserEntity {
   @ApiProperty()
@@ -22,7 +22,7 @@ export class UserEntity {
   updatedAt: Date | null;
 
   @ApiProperty()
-  role: Role;
+  role: UserRole;
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);

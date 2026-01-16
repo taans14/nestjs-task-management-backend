@@ -4,8 +4,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser } from 'src/users/decorators/user.decorator';
+import { CurrentUser } from 'src/users/decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
 
 interface AuthenticatedRequest extends Request {
@@ -13,7 +12,6 @@ interface AuthenticatedRequest extends Request {
 }
 
 @Controller('auth')
-@UseGuards(JwtAuthGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
