@@ -6,6 +6,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { SigninDto } from '../dto/signin.dto';
 import { validateOrReject } from 'class-validator';
+import { UserMapper } from 'src/users/mappers/user.mapper';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -24,6 +25,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     if (!user) throw new UnauthorizedException();
 
-    return new UserEntity(user);
+    return UserMapper.toEntity(user);
   }
 }

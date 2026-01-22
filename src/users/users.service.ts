@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import * as bcrypt from 'bcrypt';
 
@@ -21,6 +25,14 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto) {
+    const exists = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (exists) {
+      throw new ConflictException('Email is already registered');
+    }
+
     dto.password = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
       data: {

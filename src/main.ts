@@ -5,9 +5,16 @@ import morgan from 'morgan';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+
+  const port = configService.get<number>('PORT', 3000);
 
   const config = new DocumentBuilder()
     .setTitle('Task Management')
@@ -17,7 +24,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalFilters(new PrismaExceptionFilter());
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new ResponseInterceptor(),
+  );
 
   app.use(morgan('dev'));
   app.useGlobalPipes(
@@ -28,6 +39,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port ?? 3000);
 }
 bootstrap();

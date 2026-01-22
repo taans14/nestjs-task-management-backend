@@ -4,6 +4,8 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { UsersService } from 'src/users/users.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { UserMapper } from 'src/users/mappers/user.mapper';
+import { ConfigService } from '@nestjs/config';
 
 export interface JwtPayload {
   sub: string;
@@ -12,17 +14,14 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly usersService: UsersService) {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      throw new Error('JWT_SECRET environment variable is not defined');
-    }
-
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly config: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
     });
   }
 
@@ -37,6 +36,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User no longer exists');
     }
 
-    return new UserEntity(user);
+    return UserMapper.toEntity(user);
   }
 }

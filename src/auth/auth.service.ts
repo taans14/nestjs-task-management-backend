@@ -6,6 +6,7 @@ import { SignupDto } from './dto/signup.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { SigninDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserMapper } from 'src/users/mappers/user.mapper';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
 
     if (!isMatch) return null;
 
-    return new UserEntity(user);
+    return UserMapper.toEntity(user);
   }
 
   async signup(dto: SignupDto) {
@@ -35,7 +36,7 @@ export class AuthService {
       password: passwordHash,
     });
 
-    return new UserEntity(user);
+    return UserMapper.toEntity(user);
   }
 
   signin(user: UserEntity) {
