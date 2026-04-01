@@ -1,98 +1,175 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS Task Management Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Production-oriented backend for a task/team management application built with NestJS, Prisma and PostgreSQL. Implements secure authentication (email/password + JWT), role-based authorization (USER / ADMIN), team membership rules, task lifecycle management, notifications, request context middleware, structured validation and centralized error handling.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## TL;DR
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Area | Highlights |
+|------|-----------|
+| Auth | Local email/password with Passport local + JWT. Global JWT guard applied; `JwtStrategy` validates tokens and resolves users via `UsersService`. Passwords hashed with `bcrypt`.
+| Data | Prisma ORM with a PostgreSQL datasource. Models: User, Task, Team, TeamMember, Notification. Prisma client generated into `prisma/generated`.
+| Code Quality | Validation via `class-validator` + global `ValidationPipe`; centralized Prisma exception filter and response interceptor for consistent API shapes.
+| Security | JWT stateless tokens; role-based guards for admin/user and team role checks (OWNER / MEMBER). Defensive request validation and duplicate checks in services.
+| Reliability | Jest unit & e2e setup present (`test/*`), and structured foldering by domain (auth, users, teams, tasks, notifications).
+| Observability | Request logging with `morgan`; Swagger docs available at `/api` in dev.
+| Deployment | `docker-compose.yml` includes PostgreSQL service; simple Dockerfile placeholder included for app containerization.
+| Performance | Pagination & DTO-driven shape (project-level hooks available); easily extendable with caching layers (no Redis configured by default).
 
-## Project setup
+---
 
-```bash
-$ pnpm install
-```
+## Tech Stack
 
-## Compile and run the project
+| Category | Choice |
+|----------|--------|
+| Language | TypeScript |
+| Framework | NestJS (Modules, Guards, Interceptors, Pipes) |
+| ORM | Prisma (PostgreSQL) |
+| Auth | Passport (local + jwt), bcrypt |
+| API Docs | Swagger (@nestjs/swagger) |
+| Logging | morgan |
+| Testing | Jest, Supertest (e2e) |
+| Containerization | Docker / docker-compose |
 
-```bash
-# development
-$ pnpm run start
+---
 
-# watch mode
-$ pnpm run start:dev
+## Core Domains
 
-# production mode
-$ pnpm run start:prod
-```
+- Authentication & Identity (registration, login, JWT issuance)
+- Users (profile management)
+- Teams & Memberships (owner/member roles, join/leave flows)
+- Tasks (CRUD, state transitions: TODO / DOING / DONE)
+- Notifications (user-targeted messages persisted in DB)
+- Infrastructure: request context middleware, global exception filter, response interceptor
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## Quick Start
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. Clone and install dependencies
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+git clone <repo-url>
+cd nestjs-task-management-backend
+npm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+2. Configure environment (example `.env` variables)
 
-## Resources
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=taskdb
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/taskdb
+PORT=3000
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRATION_TIME=3600s
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+3. Start PostgreSQL (Docker)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+docker compose up -d db
+# or run a local Postgres container
+docker run -d --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=taskdb -p 5432:5432 postgres:16
+```
 
-## Support
+4. Generate Prisma client and run migrations
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npx prisma generate
+# if you have migrations:
+npx prisma migrate dev --name init
+```
 
-## Stay in touch
+5. Run the app (dev)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start:dev
+```
 
-## License
+6. Run tests
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+npm test
+npm run test:e2e
+```
+
+---
+
+## Authentication & Authorization
+
+- Auth endpoints exist under `src/auth` and are wired with Passport strategies defined in `src/auth/strategies` (`local.strategy.ts`, `jwt.strategy.ts`).
+- A global `JwtAuthGuard` is registered via `APP_GUARD` in `AuthModule` to protect routes by default; public routes are opt-out via a `@Public()` decorator (see `src/auth/decorators/public.decorator.ts`).
+- Roles: `USER` and `ADMIN` (see Prisma `UserRole` enum). Team roles are `OWNER` and `MEMBER` (see `TeamRole`).
+- Passwords are hashed using `bcrypt` before persisting.
+
+---
+
+## REST API — Representative Endpoints
+
+Legend: Public = unauthenticated; USER = authenticated user; ADMIN = requires admin role.
+
+- Auth
+  - POST /auth/signup — Public — register a new user
+  - POST /auth/signin — Public — login, returns JWT
+
+- Users
+  - GET /users — ADMIN — list users (if implemented)
+  - GET /users/profile — USER — get current user's profile
+
+- Teams
+  - POST /teams — USER — create a team
+  - POST /teams/:id/members — USER/OWNER — add a member (owner only by policy)
+
+- Tasks
+  - POST /tasks — USER — create a task (requires team membership)
+  - GET /tasks — USER — list tasks (filter by team/creator)
+  - PATCH /tasks/:id — USER — update task (creator or team owner/member depending on guard)
+
+- Notifications
+  - GET /notifications — USER — list notifications for current user
+
+For full shapes and DTOs, consult the DTO files under `src/**/dto` and model definitions in `prisma/schema.prisma`.
+
+---
+
+## Project Structure (high level)
+
+- `src/auth` — authentication module, controllers, strategies, guards
+- `src/users` — user service, controller, DTOs, guards
+- `src/teams` — team creation, membership, roles
+- `src/tasks` — task domain and state management
+- `src/notifications` — notification creation and retrieval
+- `src/common` — global pipes, filters, interceptors, middlewares (request context)
+- `prisma` — schema + migrations + generated client
+
+---
+
+## Observability & Error Handling
+
+- Request logging with `morgan` for development
+- Swagger UI enabled at `/api` (see `src/main.ts`)
+- Centralized PrismaExceptionFilter located at `src/common/filters/prisma-exception.filter.ts` to translate DB errors into structured HTTP responses
+
+---
+
+## CI / Tests
+
+- Jest is configured for unit and e2e tests. Run `npm test` and `npm run test:e2e`.
+- There is no CI pipeline included by default in this repo; recommended additions: GitHub Actions workflow to run lint, tests, and Prisma introspection/generate steps.
+
+---
+
+## Deployment Notes
+
+- `docker-compose.yml` includes a Postgres service. The app can be containerized with a Dockerfile (placeholder present).
+- For production, host the app with a process manager or container orchestrator, run a managed Postgres instance, secure `JWT_SECRET` and other env variables, and add a persistent volume for Postgres data.
+
+---
+
+## Contributing & Hygiene
+
+- Follow the existing module pattern for new domains. Keep controllers thin; put business logic in services.
+- Use DTOs and `class-validator` for request validation and `ValidationPipe` is configured globally.
