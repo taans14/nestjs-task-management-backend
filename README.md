@@ -155,13 +155,6 @@ For full shapes and DTOs, consult the DTO files under `src/**/dto` and model def
 
 ---
 
-## CI / Tests
-
-- Jest is configured for unit and e2e tests. Run `npm test` and `npm run test:e2e`.
-- There is no CI pipeline included by default in this repo; recommended additions: GitHub Actions workflow to run lint, tests, and Prisma introspection/generate steps.
-
----
-
 ## Deployment Notes
 
 - `docker-compose.yml` includes a Postgres service. The app can be containerized with a Dockerfile (placeholder present).
